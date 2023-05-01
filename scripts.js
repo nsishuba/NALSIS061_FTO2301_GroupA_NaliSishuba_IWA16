@@ -67,51 +67,53 @@ const MONTHS = [
   // Only edit below this comment
 
   const createHtml = (athlete) => {
-    const {firstName, surname, id, races} = data.response.data.athlete
-    [date, time] = races.reverse()
-
+    const {firstName, surname, id, races} = athlete
+    const [{date, time}] = races.reverse() //reversing to get latest Date 
+  
     const fragment = document.createDocumentFragment();
   
-    title = document.createElement('h2');
-    title= id;
+    let title = document.createElement("h2");
+    title.innerHTML = id;
     fragment.appendChild(title);
   
-    const list = document.createElement('dl');
-  
-    const day = date.getDate();
-    const month = MONTHS[date.month];
-    const year = date.year;
-  
-    const [first, second, third, fourth ]= timeAsArray;
+    const list = document.createElement("dl");
+    
+    const day = new Date(date).getDate();
+    const month = MONTHS[new Date(date).getMonth()];
+    const year = new Date(date).getFullYear();
+    
+    const [first, second, third, fourth] = time;
     const total = first + second + third + fourth;
-  
-    const hours = total / 60;
-    const minutes = total / hours / 60;
 
-    list.innerHTML = /* html */ 
-    <dl>
-      <dt>Athlete</dt>
+    let hours = 0;
+    let minutes = 0;
+
+    if (total >= 60) {
+      hours = Math.floor(total / 60);
+      minutes = total - (hours * 60);
+    } 
+    else {
+      minutes = total;
+    }
+
+    list.innerHTML = /* html */ `
+      <dt>Athlete:</dt>
       <dd>${firstName} ${surname}</dd>
   
-      <dt>Total Races</dt>
-      <dd>`${races}`</dd>
+      <dt>Total Races:</dt>
+      <dd>${races.length}</dd>
   
-      <dt>Event Date (Latest)</dt>
-      <dd>`${day} ${month} ${year}`</dd>
+      <dt>Event Date (Latest):</dt>
+      <dd>${day} ${month} ${year}</dd>
   
-      <dt>Total Time (Latest)</dt>
-      <dd>`${hours.padStart(2, 0)} : ${minutes}`</dd>;
-    </dl>
+      <dt>Total Time (Latest):</dt>
+      <dd>${hours.toString().padStart(2, 0)}:${minutes}</dd>
+    `;
   
-    fragment.appendChild(list);
+    return fragment.appendChild(list);
   }
- 
-  const {NM372, SV782} = data.response.data
-  // createHtml(NM372)
-
-  const section1 = document.querySelector('[data-athlete = "NM372"]')
-  section1.appendChild(createHtml(NM372));
-
-  const section2 = document.querySelector('[data-athlete = "SV782"]')
-  section2.appendChild(createHtml(SV782));
   
+  const { response: {data: {NM372, SV782}}} = data;
+  document.querySelector('[data-athlete="NM372"]').appendChild(createHtml(NM372));
+  document.querySelector('[data-athlete="SV782"]').appendChild(createHtml(SV782));
+
